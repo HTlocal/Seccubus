@@ -19,11 +19,13 @@
 # ------------------------------------------------------------------------------
 #
 #FROM debian:jessie
-FROM perl:5
+FROM ubuntu
 MAINTAINER fbreedijk@schubergphilis.com
 
-RUN apt-get update && apt-get upgrade -y && \
-    (echo 'mysql-server mysql-server/root_password password dwofMVR8&E^#3owHA0!Y' | debconf-set-selections ) && \
+RUN apt-get update && apt-get upgrade -y && apt-get -y install apt-utils
+RUN apt-get -y install perl cpanminus make perl-modules-* gcc libmysqlclient-dev libexpat1-dev libcrypt-ssleay-perl libnet-ssleay-perl git
+
+RUN (echo 'mysql-server mysql-server/root_password password dwofMVR8&E^#3owHA0!Y' | debconf-set-selections ) && \
     (echo 'mysql-server mysql-server/root_password_again password dwofMVR8&E^#3owHA0!Y' | debconf-set-selections ) && \
     apt-get install default-jre-headless mysql-server dnsutils nmap nginx cron rsyslog ssmtp bsdmainutils -y &&\
     apt-get purge logrotate -y && \
@@ -44,6 +46,9 @@ COPY jmvc /build/seccubus/jmvc
 COPY lib /build/seccubus/lib
 COPY scanners /build/seccubus/scanners
 COPY build_all build_jmvc install.pl Makefile.PL seccubus.pl SeccubusV2.pm /build/seccubus/
+
+RUN chown -R mysql:mysql /var/lib/mysql
+RUN usermod -d /var/lib/mysql mysql
 
 COPY docker-install.sh /tmp/install.sh
 RUN bash /tmp/install.sh && rm /tmp/install.sh

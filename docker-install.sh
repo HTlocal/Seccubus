@@ -61,14 +61,16 @@ chmod 755 /var/log/seccubus
 chown seccubus:seccubus /var/log/seccubus
 
 # Build up the database
-/usr/bin/mysql_install_db --datadir="/var/lib/mysql" --user=mysql
+#/usr/bin/mysql_install_db --datadir="/var/lib/mysql" --user=mysql
+mysqld --initialize-insecure --user=mysql --datadir=/opt/seccubus/data > /dev/stderr
 #(cd /usr ; /usr/bin/mysqld_safe --datadir="/var/lib/mysql" --socket="/var/lib/mysql/mysql.sock" --user=mysql  >/dev/null 2>&1 &)
 #sleep 3
+chown -R mysql:mysql /var/lib/mysql
 /etc/init.d/mysql start
-/usr/bin/mysql -u root --password='dwofMVR8&E^#3owHA0!Y'<<EOF
-	create database seccubus;
-	grant all privileges on seccubus.* to seccubus@localhost identified by 'seccubus';
-	flush privileges;
+/usr/bin/mysql -u root -p'dwofMVR8&E^#3owHA0!Y' -h 127.0.0.1 -P 3306 <<EOF
+        create database seccubus;
+        grant all privileges on seccubus.* to seccubus@localhost identified by 'seccubus';
+        flush privileges;
 EOF
 /usr/bin/mysql -u seccubus -pseccubus seccubus < $(ls /opt/seccubus/db/structure*.mysql|tail -1)
 /usr/bin/mysql -u seccubus -pseccubus seccubus < $(ls /opt/seccubus/db/data*.mysql|tail -1)

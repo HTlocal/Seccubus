@@ -220,10 +220,12 @@ if [[ "$DBHOST" == "127.0.0.1" && "$DBPORT" == "3306" ]]; then
     DBDIR="/var/lib/mysql"
     if [[ -e /opt/seccubus/data/db ]]; then
         DBDIR="/opt/seccubus/data/db"
-        sed -i.bak "s#/var/lib/mysql#$DBDIR#" /etc/mysql/mariadb.conf.d/50-server.cnf
+        #sed -i.bak "s#/var/lib/mysql#$DBDIR#" /etc/mysql/mariadb.conf.d/50-server.cnf
+        sed -i.bak "s#/var/lib/mysql#$DBDIR#" /etc/mysql/mysql.conf.d/mysqld.cnf
         if [[ ! -e "$DBDIR/ibdata1" ]]; then
             # Assume that DB directory is unitialized
-            /usr/bin/mysql_install_db --datadir="$DBDIR" --user=mysql
+            #/usr/bin/mysql_install_db --datadir="$DBDIR" --user=mysql
+            mysqld --initialize-insecure --user=mysql --datadir="$DBDIR" > /dev/stderr
         fi
         /etc/init.d/mysql start
         /usr/bin/mysqladmin -u root password 'dwofMVR8&E^#3owHA0!Y'
@@ -231,7 +233,7 @@ if [[ "$DBHOST" == "127.0.0.1" && "$DBPORT" == "3306" ]]; then
         /etc/init.d/mysql start
     fi
     if [[ ! -d "$DBDIR/seccubus" ]]; then
-/usr/bin/mysql -u root --password='dwofMVR8&E^#3owHA0!Y'<<EOF
+    /usr/bin/mysql -uroot -p'dwofMVR8&E^#3owHA0!Y'<<EOF
     create database seccubus;
     grant all privileges on seccubus.* to seccubus@localhost identified by 'seccubus';
     flush privileges;
